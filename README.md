@@ -60,7 +60,7 @@ Additionally, `Laser_RobMap` for any other aplications requires the following Py
 
     ```bash
     cd ~/ros2_ws/src
-    git clone https://github.com/FredMSaico/Laser_RobMap.git
+    git clone https://github.com/FredMSaico/laser_robmap.git
     ```
 
 3. Install any dependencies using `rosdep`:
@@ -107,15 +107,14 @@ Additionally, `Laser_RobMap` for any other aplications requires the following Py
 
 To run the nodes provided by the `Laser_RobMap` package, use the following commands:
 
-1. Launch the primary node:
+1. Launch the [robot_localization](https://github.com/cra-ros-pkg/robot_localization) package to improve odometry and publish frame transformations:
+   ```bash
+    ros2 launch robot_localization ekf_leo.launch.py
+    ```
+2. Launch Laser_RobMap nodes:
 
     ```bash
     ros2 launch laser_robmap leo_map.launch.py
-    ```
-
-2. Launch the [robot_localization](https://github.com/cra-ros-pkg/robot_localization) package to improve odometry and publish frame transformations:
-   ```bash
-    ros2 launch robot_localization ekf_leo.launch.py
     ```
 4. To visualize the mapping process, use RViz:
 
