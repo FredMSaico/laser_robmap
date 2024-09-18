@@ -1,0 +1,15 @@
+laserscan_projector:
+  ros__parameters:
+    frequency: 4
+    angle_min: 0
+    angle_max: 180
+    angle_res: 0.225
+    
+map_generator:
+  ros__parameters:
+    frequency: 4
+    PCD: True
+    PLY: True
+    LAS: False
+    Voxelization: True
+    Voxel_size: 0.1
