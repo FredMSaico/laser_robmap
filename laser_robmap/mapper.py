@@ -29,7 +29,8 @@ class PointCloudMap(Node):
                 ('PLY', True),
                 ('LAS', False),
                 ('Voxelization', True),
-                ('Voxel_size', 0.05)
+                ('Voxel_size', 0.05),
+                ('viz', True)
             ])
 
         self.subscription = self.create_subscription(PointCloud2, '/cloud', self.cloud_callback, qos_profile)
@@ -40,6 +41,7 @@ class PointCloudMap(Node):
         self.las = self.get_parameter('LAS').value
         self.voxel = self.get_parameter('Voxelization').value
         self.voxel_size = self.get_parameter('Voxel_size').value
+        self.viz = self.get_parameter('viz').value
 
         self.last_x = 0.0
         self.last_y = 0.0
@@ -56,7 +58,7 @@ class PointCloudMap(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
-        if self.stamp is not None:
+        if self.stamp is not None and self.viz:
             map_msg = create_cloud_msg(self.accumulated_points, self.stamp, self.frame_id)
             self.map_publisher.publish(map_msg)
 
