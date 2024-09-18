@@ -115,7 +115,7 @@ To run the nodes provided by the `Laser_RobMap` package, use the following comma
 
 2. Launch the [robot_localization](https://github.com/cra-ros-pkg/robot_localization) package to improve odometry and publish frame transformations:
    ```bash
-    ros2 launch robot_localization ekf.launch.py
+    ros2 launch robot_localization ekf_leo.launch.py
     ```
 4. To visualize the mapping process, use RViz:
 
