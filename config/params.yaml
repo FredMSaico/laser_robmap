@@ -13,3 +13,4 @@ map_generator:
     LAS: False
     Voxelization: True
     Voxel_size: 0.1
+    viz: True
