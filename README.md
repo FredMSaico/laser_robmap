@@ -31,7 +31,7 @@ The following packages must be installed on the Raspberry Pi (Leo Rover) to run 
 
 This package has been tested with ROS 2 Humble and ROS 2 Foxy. Ensure the following ROS 2 packages are installed:
 
-- **[robot_localization](https://github.com/cra-ros-pkg/robot_localization)**: Used for sensor fusion and state estimation. Install it in the `src` folder of your workspace. A sample launch file, `ekf_leo.launch.py`, is provided in the `doc` folder of this repository.
+- **[robot_localization](https://github.com/cra-ros-pkg/robot_localization)**: Used for sensor fusion and state estimation. Install it in the `src` folder of your workspace. A sample launch file, `ekf_leo.launch.py`, is provided in the `doc` folder of this repository. Use the `foxy-devel` or `humble-devel` branch according to your ROS version.
 - **[leo_desktop-ros2](https://github.com/LeoRover/leo_desktop-ros2)**: Required for visualizing the Leo Rover model in RViz, essential for real-time demonstrations using the `leo_viz` package.
 - **[leo_common-ros2](https://github.com/LeoRover/leo_common-ros2)**: Provides the `leo_description` package, which is necessary for generating the robot model and managing transformations for the Leo Rover.
 
