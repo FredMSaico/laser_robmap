@@ -1,46 +1,61 @@
+import rclpy
 import numpy as np
+from rclpy.time import Time
 from sensor_msgs.msg import LaserScan
 
-def scan_filter(laserscan, angle_min, angle_max, angle_res):
+def scan_filter(input_scan: LaserScan, lower_angle: float, upper_angle: float, angle_res: float) -> LaserScan:
     """
-    Filtra un mensaje LaserScan para limitar el rango de ángulos y cambiar la resolución.
+    Filters a LaserScan message by removing points outside the specified angle range and adjusts the angular resolution.
 
-    :param laserscan: Mensaje de tipo LaserScan
-    :param angle_min: Ángulo mínimo del rango deseado en grados
-    :param angle_max: Ángulo máximo del rango deseado en grados
-    :param angle_res: Nueva resolución de escaneo en grados (por defecto 0.225°)
-    :return: Nuevo mensaje LaserScan con los datos filtrados y la nueva resolución
+    :param input_scan: Input LaserScan message.
+    :param lower_angle: Lower angle of the allowed range.
+    :param upper_angle: Upper angle of the allowed range.
+    :param angle_res: Desired angular resolution.
+    :return: Filtered LaserScan message.
     """
-    angle_min_rad = np.deg2rad(angle_min)
-    angle_max_rad = np.deg2rad(angle_max)
-    angle_res_rad = np.deg2rad(angle_res)
-
-    indice_min = int((angle_min_rad - laserscan.angle_min) / laserscan.angle_increment)
-    indice_max = int((angle_max_rad - laserscan.angle_min) / laserscan.angle_increment)
-
-    filtered_ranges = laserscan.ranges[indice_min:indice_max]
-    filtered_intensities = laserscan.intensities[indice_min:indice_max] if laserscan.intensities else []
-
-    new_scan = LaserScan()
-    new_scan.header = laserscan.header
-    new_scan.angle_min = angle_min_rad
-    new_scan.angle_max = angle_max_rad
-    new_scan.time_increment = laserscan.time_increment
-    new_scan.scan_time = laserscan.scan_time
-    new_scan.range_min = laserscan.range_min
-    new_scan.range_max = laserscan.range_max
-
-    if angle_res_rad >= laserscan.angle_increment:
-        step = int(angle_res_rad / laserscan.angle_increment)
-        new_scan.angle_increment = angle_res_rad
-        new_scan.ranges = filtered_ranges[::step]
-        new_scan.intensities = filtered_intensities[::step] if filtered_intensities else []
-    else:
-        new_scan.angle_increment = laserscan.angle_increment
-        new_scan.ranges = filtered_ranges
-        new_scan.intensities = filtered_intensities
-
-    return new_scan
+    filtered_scan = LaserScan()
+    filtered_scan.header = input_scan.header
+    
+    start_angle = input_scan.angle_min
+    current_angle = input_scan.angle_min
+    start_time = Time.from_msg(input_scan.header.stamp)
+    
+    filtered_ranges = []
+    filtered_intensities = []
+    
+    if angle_res < input_scan.angle_increment:
+        angle_res = input_scan.angle_increment
+    
+    skip_points = int(angle_res / input_scan.angle_increment)
+    
+    for i, range_value in enumerate(input_scan.ranges):
+        if start_angle < lower_angle:
+            start_angle += input_scan.angle_increment
+            current_angle += input_scan.angle_increment
+            start_time = start_time + rclpy.duration.Duration(seconds=input_scan.time_increment)
+        else:
+            if (current_angle - start_angle) % angle_res < input_scan.angle_increment:
+                filtered_ranges.append(range_value)
+                if input_scan.intensities:
+                    filtered_intensities.append(input_scan.intensities[i])
+            
+            if current_angle + input_scan.angle_increment > upper_angle:
+                break
+            
+            current_angle += input_scan.angle_increment
+    
+    filtered_scan.angle_min = start_angle
+    filtered_scan.angle_max = current_angle
+    filtered_scan.angle_increment = angle_res
+    filtered_scan.time_increment = input_scan.time_increment * skip_points
+    filtered_scan.scan_time = input_scan.scan_time
+    filtered_scan.range_min = input_scan.range_min
+    filtered_scan.range_max = input_scan.range_max
+    
+    filtered_scan.ranges = filtered_ranges
+    filtered_scan.intensities = filtered_intensities if input_scan.intensities else []
+    
+    return filtered_scan
 
 def scan_rotation(q):
     x, y, z, w = q.x, q.y, q.z, q.w
